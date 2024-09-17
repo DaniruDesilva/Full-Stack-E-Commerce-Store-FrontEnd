@@ -1,11 +1,23 @@
 import { Heart } from "lucide-react";
-import { useState } from "react";
+import { useContext, useState } from "react";
+import { CartContext } from "../../../context/cartContext";
 
 function ProductCard(props) {
-  const [isLiked, setisLiked] = useState(false);
+  const [isLiked, setIsLiked] = useState(false);
+  const { updateCart } = useContext(CartContext);
 
   const handleClick = () => {
-    setisLiked(!isLiked);
+    setIsLiked(!isLiked);
+  };
+
+  const handleAddToCart = () => {
+    updateCart({
+      _id: props._id,
+      name: props.name,
+      price: props.price,
+      image: props.image,
+      description: props.description,
+    });
   };
 
   return (
@@ -32,7 +44,11 @@ function ProductCard(props) {
         </div>
         <p className="text-sm">{props.description}</p>
         <div className="mt-2">
-          <button className="border-2 border-black px-4 py-1 text-lg rounded-lg mt-2 font-medium hover:bg-black hover:text-white transition">
+          <button
+            onClick={handleAddToCart}
+            type="button"
+            className="border-2 border-black px-4 py-1 text-lg rounded-lg mt-2 font-medium hover:bg-black hover:text-white transition"
+          >
             Add To Cart
           </button>
         </div>

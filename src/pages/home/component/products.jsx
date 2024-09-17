@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import { getAllCategories } from "../../../services/api/categories";
+import { getAllProducts } from "../../../services/api/products";
 import ProductCard from "./productCard";
 import Tab from "./Tab";
-import { getAllProducts } from "../services/api/products";
 
 function Products() {
   // const products = [
@@ -80,18 +81,19 @@ function Products() {
   // ];
 
   const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
   const [error, setError] = useState("");
 
-  const categories = [
-    { id: "ALL", name: "All" },
-    { id: "1", name: "Headphones" },
-    { id: "2", name: "Earbuds" },
-    { id: "3", name: "Speakers" },
-    { id: "4", name: "Mobile Phones" },
-    { id: "5", name: "Smart Watches" },
-  ];
+  // const categories = [
+  //   { id: "ALL", name: "All" },
+  //   { id: "1", name: "Headphones" },
+  //   { id: "2", name: "Earbuds" },
+  //   { id: "3", name: "Speakers" },
+  //   { id: "4", name: "Mobile Phones" },
+  //   { id: "5", name: "Smart Watches" },
+  // ];
 
   const [selectedCategory, setSelectedCategory] = useState("ALL");
   const filterProducts =
@@ -106,13 +108,26 @@ function Products() {
   useEffect(() => {
     getAllProducts()
       .then((data) => {
-        console.log(data);
+        // console.log(data);
         setProducts(data);
       })
-      .catch(() => {
+      .catch((e) => {
         console.log(e);
-        setIsError(true);
         setError(e.message);
+        setIsError(true);
+      }).finally(() => {
+        setIsLoading(false);
+      });
+
+      getAllCategories()
+      .then((data) => {
+        // console.log(data);
+        setCategories(data);
+      })
+      .catch((e) => {
+        console.log(e);
+        setError(e.message);
+        setIsError(true);
       }).finally(() => {
         setIsLoading(false);
       });
@@ -130,7 +145,7 @@ function Products() {
               return (
                 <Tab
                   selectedCategory={selectedCategory}
-                  key={el.id}
+                  key={el._id}
                   category={el}
                   onClick={handleTabClick}
                 />
@@ -154,11 +169,11 @@ function Products() {
 
         <div className="py-8">
           <div className="flex items-center gap-x-4">
-            {categories.map((el) => {
+          {categories.map((el) => {
               return (
                 <Tab
                   selectedCategory={selectedCategory}
-                  key={el.id}
+                  key={el._id}
                   category={el}
                   onClick={handleTabClick}
                 />
@@ -167,7 +182,7 @@ function Products() {
           </div>
 
           <div className="grid grid-cols-4 gap-6 mt-4">
-            <p>Some error happend: {error}</p>
+            <p className="text-red-500">Some error happend: {error}</p>
           </div>
         </div>
       </section>
@@ -182,10 +197,10 @@ function Products() {
       <div className="py-8">
         <div className="py-8 px-16">
           <div className="flex items-center gap-x-4">
-            {categories.map((el) => {
+            {categories.concat([{_id: "ALL", name: "ALL"}]).map((el) => {
               return (
                 <Tab
-                  key={el.id}
+                  key={el._id}
                   selectedCategory={selectedCategory}
                   category={el}
                   handleTabClick={handleTabClick}
@@ -199,7 +214,8 @@ function Products() {
           {filterProducts.map((el) => {
             return (
               <ProductCard
-                key={el.id}
+                key={el._id}
+                _id={el._id}
                 name={el.name}
                 image={el.image}
                 price={el.price}
